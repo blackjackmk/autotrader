@@ -8,7 +8,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 
 options = webdriver.FirefoxOptions()
-#options.add_argument('-headless')
+options.add_argument('-headless')
 driver = webdriver.Firefox(options=options)
 #------------------------------------------------------------------#
 def get_diff():
@@ -31,14 +31,12 @@ def parse():
     global houravg, minavg, priceatsix
     time.sleep(10)#cookie accept
     driver.find_element(By.XPATH,'//*[@id="onetrust-accept-btn-handler"]').click()
-    time.sleep(10)
     houravg = driver.find_element(By.XPATH,'/html/body/div[6]/section/div[10]/div[1]/div[1]/span').text
     time.sleep(10)
     driver.find_element(By.XPATH,'/html/body/div[6]/section/div[8]/ul/li[1]').click()
     time.sleep(10)
     minavg = driver.find_element(By.XPATH,'/html/body/div[6]/section/div[10]/div[1]/div[1]/span').text
     priceatsix = driver.find_element(By.XPATH,'//*[@id="last_last"]').text
-    #driver.close()
 def firsttrade():
     parse()
     global conclusion
@@ -61,7 +59,8 @@ def firsttrade():
         conclusion = "Buy"
     else:
         conclusion = "Not today"
-    conn = sqlite3.connect("trades.db")
+
+    conn = sqlite3.connect("eurusd.db")
     db = conn.cursor() 
     db.execute("INSERT INTO trades ('dateoftrade', 'hour_conclusion', 'min_conclusion', 'global_conclusion', 'priceatsix') VALUES ( ?, ?, ?, ?, ?)", (d1, houravg, minavg, conclusion, priceatsix))
     conn.commit()
@@ -76,16 +75,17 @@ def secondtrade():
         will_repeat = False
     else:
         will_repeat = True
-    conn = sqlite3.connect("trades.db")
+    conn = sqlite3.connect("eurusd.db")
     db = conn.cursor()
     db.execute("UPDATE trades SET priceatseven = ?, will_repeat = ? WHERE dateoftrade = ?", (priceatseven, will_repeat, d1))
     conn.commit()
+    conn.close()
 #------------------------------------------------------------------#
 get_diff()
-firsttrade()
-secondtrade()
-#schedule.every().day.at(ls_time).do(firsttrade)
-#schedule.every().day.at(ll_time).do(secondtrade)
+#firsttrade()
+#secondtrade()
+schedule.every().day.at(ls_time).do(firsttrade)
+schedule.every().day.at(ll_time).do(secondtrade)
 #------------------------------------------------------------------#
 while True:
     schedule.run_pending()
