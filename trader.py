@@ -12,9 +12,6 @@ options.add_argument('-headless')
 driver = webdriver.Firefox(options=options)
 #------------------------------------------------------------------#
 def get_diff():
-    today = date.today()
-    global d1
-    d1 = today.strftime("%d/%m/%Y")
     utc = datetime.datetime.utcnow()
     local = datetime.datetime.now()
     diff = local.hour - utc.hour
@@ -25,6 +22,7 @@ def get_diff():
     global ll_time
     ll_time = datetime.time(ul_time.hour + diff).strftime("%H:%M")
 def parse():
+    get_diff()
     url = 'https://www.investing.com/currencies/eur-usd-technical'
     driver.get(url)
     time.sleep(10)
@@ -59,7 +57,9 @@ def firsttrade():
         conclusion = "Buy"
     else:
         conclusion = "Not today"
-    
+    today = date.today()
+    global d1
+    d1 = today.strftime("%d/%m/%Y")
     conn = sqlite3.connect("eurusd.db")
     db = conn.cursor() 
     db.execute("INSERT INTO trades ('dateoftrade', 'hour_conclusion', 'min_conclusion', 'global_conclusion', 'priceatsix') VALUES ( ?, ?, ?, ?, ?)", (d1, houravg, minavg, conclusion, priceatsix))
@@ -81,10 +81,9 @@ def secondtrade():
     conn.commit()
     conn.close()
 #------------------------------------------------------------------#
-#get_diff()
+get_diff()
 #firsttrade()
 #secondtrade()
-schedule.every().day.at("03:00").do(get_diff)
 schedule.every().day.at(ls_time).do(firsttrade)
 schedule.every().day.at(ll_time).do(secondtrade)
 #------------------------------------------------------------------#
