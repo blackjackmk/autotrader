@@ -59,7 +59,7 @@ def firsttrade():
         conclusion = "Buy"
     else:
         conclusion = "Not today"
-
+    
     conn = sqlite3.connect("eurusd.db")
     db = conn.cursor() 
     db.execute("INSERT INTO trades ('dateoftrade', 'hour_conclusion', 'min_conclusion', 'global_conclusion', 'priceatsix') VALUES ( ?, ?, ?, ?, ?)", (d1, houravg, minavg, conclusion, priceatsix))
@@ -81,9 +81,10 @@ def secondtrade():
     conn.commit()
     conn.close()
 #------------------------------------------------------------------#
-get_diff()
+#get_diff()
 #firsttrade()
 #secondtrade()
+schedule.every().day.at("03:00").do(get_diff)
 schedule.every().day.at(ls_time).do(firsttrade)
 schedule.every().day.at(ll_time).do(secondtrade)
 #------------------------------------------------------------------#
