@@ -22,7 +22,6 @@ def get_diff():
     global ll_time
     ll_time = datetime.time(ul_time.hour + diff).strftime("%H:%M")
 def parse():
-    get_diff()
     url = 'https://www.investing.com/currencies/eur-usd-technical'
     driver.get(url)
     time.sleep(10)
