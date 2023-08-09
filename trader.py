@@ -15,12 +15,15 @@ def get_diff():
     utc = datetime.datetime.utcnow()
     local = datetime.datetime.now()
     diff = local.hour - utc.hour
-    us_time = datetime.time(5, 55)
+    us_time = datetime.time(5)
     ul_time = datetime.time(7)
+    adj_h1 = (us_time.hour + diff) % 24
+    adj_m1 = 55
+    adj_h2 = (ul_time.hour + diff) % 24
     global ls_time
-    ls_time = datetime.time(us_time.hour + diff, 55).strftime("%H:%M")
+    ls_time = datetime.time(adj_h1, adj_m1).strftime("%H:%M")
     global ll_time
-    ll_time = datetime.time(ul_time.hour + diff).strftime("%H:%M")
+    ll_time = datetime.time(adj_h2).strftime("%H:%M")
 def parse():
     url = 'https://www.investing.com/currencies/eur-usd-technical'
     driver.get(url)
